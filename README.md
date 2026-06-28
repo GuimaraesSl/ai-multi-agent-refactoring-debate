@@ -14,6 +14,10 @@ REST API**.
 This repository is the executable implementation of the architecture described in the paper
 (Section 4 — *Metodologia*, Figure 1).
 
+> **New to this repo?** See [`docs/GUIA_DE_EXECUCAO.pdf`](docs/GUIA_DE_EXECUCAO.pdf) (PT-BR)
+> for a step-by-step guide to install and run the system — written for an evaluator with no
+> prior context on the codebase.
+
 ---
 
 ## Why this design

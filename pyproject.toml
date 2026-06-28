@@ -1,0 +1,98 @@
+[project]
+name = "refactoring-debate"
+version = "0.1.0"
+description = "Multi-agent refactoring recommendation system for Python code, grounded in a peer-review-inspired debate between LLM-based specialist agents."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "Gabriel Al-Samir G. Sales", email = "gabriel.alsamir@alu.ufc.br" },
+    { name = "Marcos Antonio de Oliveira", email = "marcos.oliveira@ufc.br" },
+]
+keywords = [
+    "refactoring",
+    "multi-agent",
+    "llm",
+    "code-quality",
+    "software-sustainability",
+    "static-analysis",
+]
+
+dependencies = [
+    # --- REST API layer (FastAPI) ---
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "python-multipart>=0.0.12",
+    # --- Static analysis tools ---
+    "radon>=6.0",
+    "pylint>=3.3",
+    "import-linter>=2.1",
+    # --- Dynamic / performance tools ---
+    "scalene>=1.5.45",
+    "py-spy>=0.3.14",
+    # --- Energy / sustainability tools ---
+    "codecarbon>=2.7",
+    # --- Orchestration / agents ---
+    "crewai>=0.80",
+    # --- Shared utilities ---
+    "httpx>=0.27",
+    "tenacity>=9.0",
+    "rich>=13.9",
+    "loguru>=0.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.7",
+    "mypy>=1.13",
+]
+# Hosted Claude backend (CrewAI gates the Anthropic provider behind an extra):
+#   uv sync --extra anthropic   # enable RD_LLM_PROVIDER=anthropic (Claude)
+# OpenAI (RD_LLM_PROVIDER=openai) works out of the box — litellm bundles the SDK.
+anthropic = ["crewai[anthropic]>=0.80"]
+# Build the evaluation tutorial PDF: `uv sync --extra docs`
+docs = ["markdown>=3.7", "xhtml2pdf>=0.2.16"]
+
+[project.scripts]
+refactoring-debate = "refactoring_debate.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/alsamir/ai-multi-agent-refactoring-debate"
+Paper = "https://github.com/alsamir/ai-multi-agent-refactoring-debate"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/refactoring_debate"]
+
+[tool.uv]
+# crewai pulls a large dependency tree; allow uv to resolve freely.
+package = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+# examples/ intentionally contains code smells used as analysis fixtures.
+extend-exclude = ["examples"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
+# UP042: `(str, Enum)` is deliberate for stable JSON values + Pydantic interop.
+ignore = ["E501", "UP042"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra -q"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]

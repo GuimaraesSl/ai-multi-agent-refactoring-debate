@@ -1,0 +1,45 @@
+# Architectural import contracts for this package, enforced with import-linter:
+#
+#   uv run lint-imports
+#
+# These keep the deterministic tools layer and the config/LLM leaves decoupled
+# from the higher-level agents/debate/API code (the same kind of boundary the
+# Architecture agent polices in submitted code).
+
+[importlinter]
+root_package = refactoring_debate
+
+[importlinter:contract:tools-are-deterministic]
+name = Tools layer must not depend on agents, debate, LLM or API
+type = forbidden
+source_modules =
+    refactoring_debate.tools
+forbidden_modules =
+    refactoring_debate.agents
+    refactoring_debate.debate
+    refactoring_debate.llm
+    refactoring_debate.api
+
+[importlinter:contract:llm-is-independent]
+name = LLM layer must not depend on analysis, agents, debate or API
+type = forbidden
+source_modules =
+    refactoring_debate.llm
+forbidden_modules =
+    refactoring_debate.tools
+    refactoring_debate.agents
+    refactoring_debate.debate
+    refactoring_debate.api
+
+[importlinter:contract:config-is-a-leaf]
+name = Config must remain a dependency-free leaf
+type = forbidden
+source_modules =
+    refactoring_debate.config
+forbidden_modules =
+    refactoring_debate.api
+    refactoring_debate.agents
+    refactoring_debate.tools
+    refactoring_debate.llm
+    refactoring_debate.debate
+    refactoring_debate.core

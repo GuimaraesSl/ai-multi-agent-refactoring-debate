@@ -1,0 +1,45 @@
+# Optional SonarQube server for the Architecture agent's static analysis.
+#
+#   docker compose up -d sonarqube
+#   # then in .env:  RD_SONARQUBE_URL=http://localhost:9000
+#   #                RD_SONARQUBE_TOKEN=<token generated in the SonarQube UI>
+#
+# Analyze a project into the server with the sonar-scanner CLI; the system then
+# reads the results through SonarQube's Web API.
+
+services:
+  sonarqube:
+    image: sonarqube:10-community
+    container_name: rd-sonarqube
+    depends_on:
+      - sonar-db
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  sonar-db:
+    image: postgres:16-alpine
+    container_name: rd-sonar-db
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    volumes:
+      - sonar_db:/var/lib/postgresql/data
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonar_db:
